@@ -42,6 +42,7 @@ namespace MyDurableIsolatedFunction
             string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(Orchestration), payload);
 
             _logger.LogInformation("Marvin orch");
+            await client.WaitForInstanceCompletionAsync(instanceId);
 
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
@@ -57,7 +58,7 @@ namespace MyDurableIsolatedFunction
         {
 
             _logger.LogInformation("Starting orchestration with instance ID = {instanceId}", context.InstanceId);
-            
+
             var parallelTasks = new List<Task<string>>();
 
             //Get a list of N work items to process in parallel.
