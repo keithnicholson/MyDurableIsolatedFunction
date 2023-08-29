@@ -69,9 +69,12 @@ namespace MyDurableIsolatedFunction
             parallelTasks.Add(task2);
             parallelTasks.Add(task3);
 
-            await Task.WhenAll(parallelTasks);
+            var answer = await Task.WhenAll(parallelTasks);
+            var places = string.Join(", ", answer);
+
 
             _logger.LogWarning("Might be done. Let's see!");
+            _logger.LogWarning($"Yep, you got {places}");
 
             //string response = await context.CallActivityAsync<string>(nameof(HelloMetroCities), payload[0]);
             //response += await context.CallActivityAsync<string>(nameof(HelloMyCollegeCities), payload[1]);
