@@ -1,7 +1,6 @@
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging;
 
 namespace MyDurableIsolatedFunction
