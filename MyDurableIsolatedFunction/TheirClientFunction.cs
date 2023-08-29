@@ -57,9 +57,25 @@ namespace MyDurableIsolatedFunction
         {
 
             _logger.LogInformation("Starting orchestration with instance ID = {instanceId}", context.InstanceId);
-            string response = await context.CallActivityAsync<string>(nameof(HelloMetroCities), payload[0]);
-            response += await context.CallActivityAsync<string>(nameof(HelloMyCollegeCities), payload[1]);
-            response += await context.CallActivityAsync<string>(nameof(HelloOtherCollegeCities), payload[2]);
+            
+            var parallelTasks = new List<Task<string>>();
+
+            //Get a list of N work items to process in parallel.
+            Task<string> task1 = context.CallActivityAsync<string>(nameof(HelloMetroCities), payload[0]);
+            Task<string> task2 = context.CallActivityAsync<string>(nameof(HelloMyCollegeCities), payload[1]);
+            Task<string> task3 = context.CallActivityAsync<string>(nameof(HelloOtherCollegeCities), payload[2]);
+
+            parallelTasks.Add(task1);
+            parallelTasks.Add(task2);
+            parallelTasks.Add(task3);
+
+            await Task.WhenAll(parallelTasks);
+
+            _logger.LogWarning("Might be done. Let's see!");
+
+            //string response = await context.CallActivityAsync<string>(nameof(HelloMetroCities), payload[0]);
+            //response += await context.CallActivityAsync<string>(nameof(HelloMyCollegeCities), payload[1]);
+            //response += await context.CallActivityAsync<string>(nameof(HelloOtherCollegeCities), payload[2]);
 
             //foreach (string name in payload)
             //{
@@ -74,7 +90,7 @@ namespace MyDurableIsolatedFunction
             _logger.LogError("The road construction capital of the world!!!");
             await LongTimer(25);
 
-            _logger.LogInformation("Saying hello to big metro: {name}", cityName);
+            _logger.LogCritical("Saying hello to big metro: {name}", cityName);
             return $"Hello, {cityName}!";
         }
 
@@ -84,7 +100,7 @@ namespace MyDurableIsolatedFunction
             _logger.LogError("A small efficient wait!");
             await LongTimer(3);
 
-            _logger.LogInformation("Saying hello to OSU City: {name}", cityName);
+            _logger.LogCritical("Saying hello to OSU City: {name}", cityName);
             return $"Hello, {cityName}!";
         }
 
@@ -94,14 +110,14 @@ namespace MyDurableIsolatedFunction
         {
             _logger.LogError("Could be waiting a while for this school, Big 12 or SEC!");
             await LongTimer(10);
-            _logger.LogInformation("Saying hello to UT City: {name}", cityName);
+            _logger.LogCritical("Saying hello to UT City: {name}", cityName);
             return $"Hello, {cityName}!";
         }
 
-        private async Task<string> LongTimer(int seconds)
+        private async Task LongTimer(int seconds)
         {
             await Task.Delay(seconds * 1000);
-            return "Well that took some time.";
+            //return "Well that took some time.";
         }
     }
 }
